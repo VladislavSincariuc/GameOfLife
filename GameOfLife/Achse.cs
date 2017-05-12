@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Schema;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -10,24 +11,24 @@ namespace GameOfLife
 {
     public class Achse : DrawableGameComponent
     {
-        public const int PitchWidth = 100;
-        public const int PitchHeight = 100;
+        public const int AchseWidth = 400;
+        public const int AchseHeight = 400;
 
-        public const int UpdateInterval = 33;
+        public const int UpdateInterval = 1000;
 
-        public readonly bool[,,] Cells;
-        public readonly Rectangle[,] Rechts;
+        public bool[,,] Cells;
+        public Rectangle[,] Rechts;
 
-        readonly SpriteBatch _spriteBatch;
+        public SpriteBatch SpriteBatch;
         public Texture2D LivingCellTexture;
-        public readonly Input Input;
+        public Input Input;
 
 
         public Achse(Game game, SpriteBatch spriteBatch, Input input) : base(game)
         {
-            Cells = new bool[2, PitchWidth + 2, PitchHeight + 2];
-            Rechts = new Rectangle[PitchWidth, PitchHeight];
-            this._spriteBatch = spriteBatch;
+            Cells = new bool[2, AchseWidth + 2, AchseHeight + 2];
+            Rechts = new Rectangle[AchseWidth, AchseHeight];
+            this.SpriteBatch = spriteBatch;
             this.Input = input;
         }
 
@@ -36,11 +37,14 @@ namespace GameOfLife
             LivingCellTexture = new Texture2D(GraphicsDevice, 1, 1);
             var colors = new Color[1];
             colors[0] = Color.White;
+
             LivingCellTexture.SetData(0, new Rectangle(0, 0, 1, 1), colors, 0, 1);
+
+            base.LoadContent();
         }
 
-        public int MillisecindsSinceUpdated = 0;
-        public int CurrentIndex = 0;
+        public int MillisecondsSinceUpdated;
+        public int CurrentIndex;
         public int FutureIndex = 1;
 
         public int OldWidth;
@@ -49,18 +53,22 @@ namespace GameOfLife
         public override void Update(GameTime gameTime)
         {
             if (Input.SpaceTrigger)
-                CreateRandomCells(20);
-            if (Input.ResetTrigger)
-
-
-                #region SpielLogik
-
-                if (MillisecindsSinceUpdated >= UpdateInterval)
             {
-                MillisecindsSinceUpdated = 0;
-                for (var y = 1; y < PitchHeight; y++)
+                CreateRandomCells(20);
+            }
+            if (Input.ResetTrigger)
+            {
+                ResetCells();
+            }
+
+          MillisecondsSinceUpdated += gameTime.ElapsedGameTime.Milliseconds;
+
+             if (MillisecondsSinceUpdated >= UpdateInterval)
+             {
+                MillisecondsSinceUpdated = 0;
+                for (var y = 1; y < AchseHeight + 1; y++)
                 {
-                    for (var x = 0; x < PitchWidth; x++)
+                    for (var x = 1; x < AchseWidth + 1; x++)
                     {
                         var neighboursCount = 0;
 
@@ -97,7 +105,9 @@ namespace GameOfLife
                             neighboursCount++;
 
                         if (neighboursCount == 3)
+                        {
                             Cells[FutureIndex, x, y] = true;
+                        }
                         else if (neighboursCount < 2)
                             Cells[FutureIndex, x, y] = false;
                         else if (neighboursCount > 3)
@@ -120,59 +130,54 @@ namespace GameOfLife
                     CurrentIndex = 0;
                     FutureIndex = 1;
                 }
-            }
-
-            #endregion
-
-            #region Rechtecksberechnung
+             }
 
             var width = GraphicsDevice.Viewport.Width;
             var heigth = GraphicsDevice.Viewport.Height;
 
             if (OldWidth != width || OldHeight != heigth)
             {
-                var zellenWidth = width / PitchWidth;
-                var zellenHeigth = heigth / PitchHeight;
+                var zellenWidth = width / AchseWidth;
+                var zellenHeigth = heigth / AchseHeight;
 
                 var zellenSize = Math.Min(zellenWidth, zellenHeigth);
 
-                var offSetX = width - (zellenSize * PitchWidth) / 2;
-                var offSetY = width - (zellenSize * PitchHeight) / 2;
+                var offSetX = (width - (zellenSize * AchseWidth)) / 2;
+                var offSetY = (width - (zellenSize * AchseHeight)) / 2;
 
-                for (var y = 0; y < PitchHeight; y++)
+                for (var y = 0; y < AchseHeight; y++)
                 {
-                    for (var x = 0; x < PitchWidth; x++)
+                    for (var x = 0; x < AchseWidth; x++)
                     {
                         Rechts[x, y] = new Rectangle(offSetX + x * zellenSize, offSetY + y * zellenSize, zellenSize,
                             zellenSize);
                     }
-
-                    OldHeight = heigth;
-                    OldWidth = width;
                 }
+                OldHeight = heigth;
+                OldWidth = width;
             }
 
-            #endregion
 
             base.Update(gameTime);
+
         }
 
 
 
         public override void Draw(GameTime gameTime)
         {
-            _spriteBatch.Begin();
+            SpriteBatch.Begin();
 
-            for (var y = 0; y < PitchHeight; y++)
+            for (var y = 1; y < AchseHeight + 1; y++)
             {
-                for (var x = 0; x < PitchWidth; x++)
+                for (var x = 1; x < AchseWidth + 1; x++)
                 {
                     if (Cells[CurrentIndex, x, y])
-                        _spriteBatch.Draw(LivingCellTexture, Rechts[x - 1, y - 1], Color.White);
+                        SpriteBatch.Draw(LivingCellTexture, Rechts[x - 1, y - 1], Color.White);
                 }
             }
 
-            _spriteBatch.End();
+            SpriteBatch.End();
 
             base.Draw(gameTime);
         }
@@ -181,14 +186,25 @@ namespace GameOfLife
         {
             var r = new Random();
 
-            for (var x = 1; x < PitchWidth + 1; x++)
+            for (var x = 1; x < AchseWidth + 1; x++)
             {
-                for (var y = 1; y < PitchHeight + 1; y++)
+                for (var y = 1; y < AchseHeight + 1; y++)
                 {
                     if (r.Next(0, probability) == 0)
                         Cells[CurrentIndex, x, y] = true;
                     else
                         Cells[CurrentIndex, x, y] = false;
+                }
+            }
+        }
+
+        private void ResetCells()
+        {
+            for (var y = 1; y < AchseHeight + 1; y++)
+            {
+                for (var x = 1; x < AchseWidth + 1; x++)
+                {
+                    Cells[CurrentIndex, x, y] = false;
                 }
             }
         }

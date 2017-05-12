@@ -14,8 +14,10 @@ namespace GameOfLife
 
         public Game1()
         {
-            _graphics = new GraphicsDeviceManager(this);
+            var graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
+          
         }
 
  
@@ -47,7 +49,7 @@ namespace GameOfLife
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
             base.Update(gameTime);

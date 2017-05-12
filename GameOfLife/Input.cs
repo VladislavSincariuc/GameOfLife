@@ -20,17 +20,14 @@ namespace GameOfLife
         public override void Update(GameTime gameTime)
         {
             var currentState = Keyboard.GetState();
+
             SpaceTrigger = false;
             ResetTrigger = false;
-            Figure1Trigger = false;
 
-            if (currentState.IsKeyDown(Keys.Space) && !_oldState.IsKeyDown(Keys.Space))
+            if (currentState.IsKeyDown(Keys.Space) && _oldState.IsKeyDown(Keys.Space))
                 SpaceTrigger = true;
-            if (currentState.IsKeyDown(Keys.R) && !_oldState.IsKeyDown(Keys.R))
+            if (currentState.IsKeyDown(Keys.R) && _oldState.IsKeyDown(Keys.R))
                 ResetTrigger = true;
-            if (currentState.IsKeyDown(Keys.F) && !_oldState.IsKeyDown(Keys.F))
-                Figure1Trigger = true;
-
 
 
             _oldState = currentState;
@@ -39,9 +36,6 @@ namespace GameOfLife
 
         public bool SpaceTrigger { get; private set; }
         public bool ResetTrigger { get; private set; }
-        public bool Figure1Trigger { get; private set; }
-
-
 
     }
 }
