@@ -113,7 +113,35 @@ namespace GameOfLife
             }
             #endregion
 
+            #region Rechtecksberechnung
 
+            var width = GraphicsDevice.Viewport.Width;
+            var heigth = GraphicsDevice.Viewport.Height;
+
+            if (_oldWidth != width || _oldHeight != heigth)
+            {
+                var zellenWidth = width / PitchWidth;
+                var zellenHeigth = heigth / PitchHeight;
+
+                var zellenSize = Math.Min(zellenWidth, zellenHeigth);
+
+                var offSetX = width - (zellenSize * PitchWidth) / 2;
+                var offSetY = width - (zellenSize * PitchHeight) / 2;
+
+                for (var y = 0; y < PitchHeight; y++)
+                {
+                    for (var x = 0; x < PitchWidth; x++)
+                    {
+                        _rechts[x, y] = new Rectangle(offSetX + x * zellenSize, offSetY + y * zellenSize, zellenSize,
+                            zellenSize);
+                    }
+
+                    _oldHeight = heigth;
+                    _oldWidth = width;
+                }
+            }
+
+            #endregion
 
             base.Update(gameTime);
         }
