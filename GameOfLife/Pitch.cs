@@ -147,6 +147,19 @@ namespace GameOfLife
         }
         public override void Draw(GameTime gameTime)
         {
+            _spriteBatch.Begin();
+
+            for (var y = 0; y < PitchHeight; y++)
+            {
+                for (var x = 0; x < PitchWidth; x++)
+                {
+                    if(_cells[_currentIndex, x, y])
+                        _spriteBatch.Draw(_livingCellTexture, _rechts[x -1, y - 1], Color.White);
+                }
+            }
+
+            _spriteBatch.End();
+
             base.Draw(gameTime);
         }
     }
