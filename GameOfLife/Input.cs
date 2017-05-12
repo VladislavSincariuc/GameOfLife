@@ -24,7 +24,7 @@ namespace GameOfLife
             SpaceTrigger = false;
             ResetTrigger = false;
 
-            if (currentState.IsKeyDown(Keys.Space) && _oldState.IsKeyDown(Keys.Space))
+            if (currentState.IsKeyUp(Keys.Space) && !_oldState.IsKeyDown(Keys.Space))
                 SpaceTrigger = true;
             if (currentState.IsKeyDown(Keys.R) && _oldState.IsKeyDown(Keys.R))
                 ResetTrigger = true;
